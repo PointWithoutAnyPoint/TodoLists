@@ -24,11 +24,12 @@ public class AnotherFrame extends JFrame {
         jp1.setLayout(new BorderLayout());
 
         String[] dataAL = {"Item 1", "Item 2", "Item 3"};
-        DefaultListModel<String> listModel = new DefaultListModel<>();
-        JList<String> list = new JList<>(listModel);
+        DefaultListModel<CheckboxListItem> listModel = new DefaultListModel<>();
+        JList<CheckboxListItem> list = new JList<>(listModel);
         for (String e : dataAL){
-            listModel.addElement(e);
+            listModel.addElement(new CheckboxListItem(e));
         }
+        list.setCellRenderer(new CheckboxListCellRenderer());
 //        list.setCellRenderer(new BoxListCellRenderer());
         PanewithList.add(list, BorderLayout.PAGE_START);
         
@@ -49,7 +50,7 @@ public class AnotherFrame extends JFrame {
                 for (Component c : listPane.getComponents()){
                     if (c instanceof JTextField){
                         if (!((JTextField) c).getText().isEmpty() & !((JTextField) c).getText().equals("Write your task here...")) {
-                            listModel.addElement(((JTextField) c).getText());
+                            listModel.addElement(new CheckboxListItem(((JTextField) c).getText()));
                             listPane.remove(count);
                             listPane.revalidate();
                             listPane.repaint();
@@ -88,7 +89,7 @@ public class AnotherFrame extends JFrame {
                     @Override
                     public void actionPerformed(ActionEvent e) {
                         if (!jtf.getText().isEmpty()) {
-                            listModel.addElement(jtf.getText());
+                            listModel.addElement(new CheckboxListItem(jtf.getText()));
                             listPane.remove(jtf);
                             listPane.revalidate();
                             listPane.repaint();
@@ -101,6 +102,23 @@ public class AnotherFrame extends JFrame {
             }
         });
         list.addMouseListener(new PopUpClickListener(list, listPane, listModel));
+        list.addMouseListener(new MouseAdapter() {
+//            @Override
+//            public void mouseClicked(MouseEvent e) {
+//                int index = list.locationToIndex(e.getPoint());
+//                CheckboxListItem cli = listModel.get(index);
+//                cli.setSelected(!cli.isSelected());
+//            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                int index = list.locationToIndex(e.getPoint());
+                CheckboxListItem cli = listModel.get(index);
+                cli.setSelected(!cli.isSelected());
+                list.revalidate();
+                list.repaint();
+            }
+        });
 //        list.addMouseListener(new MouseAdapter() {
 //            public void mouseClickedMouseEvent e) {
 //                int index = list.locationToIndex(e.getPoint());
@@ -126,22 +144,43 @@ public class AnotherFrame extends JFrame {
 //        this.add(l);
 
     }
-//    class BoxListCellRenderer extends JCheckBox implements ListCellRenderer<JCheckBox>{
-//        @Override
-//        public Component getListCellRendererComponent(JList<? extends String> list, String value, int index, boolean isSelected, boolean cellHasFocus) {
-//            setComponentOrientation(list.getComponentOrientation());
-//            setSelected(isSelected);
-//            setFont(list.getFont());
-//            setText(value);
-//            setBackground(list.getBackground());
-//            setForeground(list.getForeground());
-//            return this;
-//        }
-//    }
+    private class CheckboxListItem {
+        private String name;
+        private boolean selected;
+
+        public CheckboxListItem(String name) {
+            this.name = name;
+            this.selected = false;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public boolean isSelected() {
+            return selected;
+        }
+
+        public void setSelected(boolean selected) {
+            this.selected = selected;
+            JCheckBox jcb=new JCheckBox();
+            jcb.setSelected(true);
+        }
+    }
+    private class CheckboxListCellRenderer extends JCheckBox implements ListCellRenderer<CheckboxListItem> {
+        public Component getListCellRendererComponent(JList<? extends CheckboxListItem> list, CheckboxListItem value, int index, boolean isSelected, boolean cellHasFocus) {
+            setComponentOrientation(list.getComponentOrientation());
+            setSelected(value.isSelected());
+            setFont(list.getFont());
+            setBackground(list.getBackground());
+            setForeground(list.getForeground());
+            setText(value.getName());
+            return this;
+        }
 }
 class PopUpList extends JPopupMenu {
     JMenuItem anItem;
-    public  PopUpList(int index, DefaultListModel<String> list) {
+    public  PopUpList(int index, DefaultListModel<CheckboxListItem> list) {
         anItem = new JMenuItem("Remove");
 //        System.out.println(get());
         anItem.addActionListener(new ActionListener() {
@@ -155,10 +194,10 @@ class PopUpList extends JPopupMenu {
     }
 }
 class PopUpClickListener extends MouseAdapter{
-    private JList<String> list;
+    private JList<CheckboxListItem> list;
     private JPanel ParentPanel;
-    private DefaultListModel<String> dlm;
-    public PopUpClickListener(JList<String> list, JPanel parentComponent, DefaultListModel<String> dlm) {
+    private DefaultListModel<CheckboxListItem> dlm;
+    public PopUpClickListener(JList<CheckboxListItem> list, JPanel parentComponent, DefaultListModel<CheckboxListItem> dlm) {
         this.list = list;
         this.ParentPanel = parentComponent;
         this.dlm=dlm;
@@ -180,4 +219,5 @@ class PopUpClickListener extends MouseAdapter{
         }
     }
 
+    }
 }
