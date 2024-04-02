@@ -2,8 +2,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
 
 public class AnotherFrame extends JFrame {
     AnotherFrame() throws InterruptedException {
@@ -11,7 +9,7 @@ public class AnotherFrame extends JFrame {
         setTitle("No Name");
         setSize(width, 700);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
+        Boolean start = true;
         JPanel listPane = new JPanel();
         JPanel inListPane = new JPanel();
         JPanel PanewithList=new JPanel();
@@ -24,28 +22,23 @@ public class AnotherFrame extends JFrame {
         JPanel jp1 = new JPanel();
         jp1.setLayout(new BorderLayout());
 
-        String[] dataAL = {"Item 1", "Item 2", "Item 3"};
+        String[] dataAL = {"— I can't help feeling something is off over here...", "— Cross it out, it's only an assumption"};
         DefaultListModel<CheckboxListItem> listModel = new DefaultListModel<>();
         DefaultListModel<CheckboxListItem> standartName = new DefaultListModel<>();
-//        The previous one had really sucked
         JList<CheckboxListItem> list = new JList<>(listModel);
         for (String e : dataAL){
             listModel.addElement(new CheckboxListItem(e));
         }
-        for (int i=0; i<listModel.getSize(); i++){
+        for (int i=0; i<listModel.getSize(); i++) {
             CheckboxListItem item = listModel.getElementAt(i);
             standartName.addElement(item);
         }
+        listModel.set(0, new CheckboxListItem("<strike>— I can't help feeling something is off over here...</strike>"));
+        listModel.firstElement().setSelected(true);
         list.setCellRenderer(new CheckboxListCellRenderer());
-//        list.setCellRenderer(new BoxListCellRenderer());
         PanewithList.add(list, BorderLayout.PAGE_START);
-        
         list.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 20));
         listPane.add(PanewithList, "North");
-//        JScrollPane scrollPane = new JScrollPane(list);
-//        listPane.add(scrollPane, "North");
-//        listPane.add(list, "North");
-//        JTextField jtf = new JTextField();
         Button b = new Button("New Task");
         b.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 15));
         b.setPreferredSize(new Dimension(200, 30));
@@ -111,39 +104,24 @@ public class AnotherFrame extends JFrame {
         });
         list.addMouseListener(new PopUpClickListener(list, listPane, listModel, standartName));
         list.addMouseListener(new MouseAdapter() {
-//            @Override
-//            public void mouseClicked(MouseEvent e) {
-//                int index = list.locationToIndex(e.getPoint());
-//                CheckboxListItem cli = listModel.get(index);
-//                cli.setSelected(!cli.isSelected());
-//            }
-
             @Override
             public void mouseReleased(MouseEvent e) {
-                int index = list.locationToIndex(e.getPoint());
-                CheckboxListItem cli = listModel.get(index);
-                cli.setSelected(!cli.isSelected());
-                list.revalidate();
-                list.repaint();
+                if (e.getButton() == MouseEvent.BUTTON1) {
+                    int index = list.locationToIndex(e.getPoint());
+                    CheckboxListItem cli = listModel.get(index);
+                    cli.setSelected(!cli.isSelected());
+                    list.revalidate();
+                    list.repaint();
 
-                if (cli.isSelected()) {
-                    listModel.set(index, new CheckboxListItem("<strike>"+cli.getName()+"</strike>", true));
-                    cli.setSelected(false);
-                } else{
-                    listModel.set(index, standartName.get(index));
+                    if (cli.isSelected()) {
+                        listModel.set(index, new CheckboxListItem("<strike>" + cli.getName() + "</strike>", true));
+                        cli.setSelected(false);
+                    } else {
+                        listModel.set(index, standartName.get(index));
+                    }
                 }
             }
         });
-//        list.addMouseListener(new MouseAdapter() {
-//            public void mouseClickedMouseEvent e) {
-//                int index = list.locationToIndex(e.getPoint());
-//                if (index != -1) {
-//                    JCheckBox checkbox = listModel.getElementAt(index);
-//                    checkbox.setSelected(!checkbox.isSelected());
-//                    list.repaint();
-//                }
-//            }
-//        });
         inListPane.add(b);
         inListPane.setBackground(Color.WHITE);
         listPane.add(inListPane, "South");
@@ -155,9 +133,6 @@ public class AnotherFrame extends JFrame {
         setContentPane(jsp);
         setLocationRelativeTo(null);
         setVisible(true);
-//        JLabel l = new JLabel("123");
-//        this.add(l);
-
     }
     private class CheckboxListItem {
         private String name;
@@ -214,11 +189,9 @@ class PopUpList extends JPopupMenu {
 class PopUpClickListener extends MouseAdapter{
     private final DefaultListModel<CheckboxListItem> stdN;
     private JList<CheckboxListItem> list;
-    private JPanel ParentPanel;
     private DefaultListModel<CheckboxListItem> dlm;
     public PopUpClickListener(JList<CheckboxListItem> list, JPanel parentComponent, DefaultListModel<CheckboxListItem> dlm, DefaultListModel<CheckboxListItem> stdN) {
         this.list = list;
-        this.ParentPanel = parentComponent;
         this.dlm=dlm;
         this.stdN=stdN;
     }
