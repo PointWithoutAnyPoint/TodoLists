@@ -4,6 +4,10 @@ out/
 !**/src/test/**/out/
 /untitled.iml
 /.idea/
+/lib/
+/src/IO.java
+/src/testIO.java
+/src/pattern.json
 
 ### Eclipse ###
 .apt_generated

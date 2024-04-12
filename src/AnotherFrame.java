@@ -1,10 +1,9 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.util.Arrays;
 
 public class AnotherFrame extends JFrame {
-    AnotherFrame() throws InterruptedException {
+    AnotherFrame() {
         int width = 700;
         setTitle("No Name");
         setSize(width, 700);
@@ -33,6 +32,7 @@ public class AnotherFrame extends JFrame {
             CheckboxListItem item = listModel.getElementAt(i);
             standartName.addElement(item);
         }
+
         listModel.set(0, new CheckboxListItem("<strike>— I can't help feeling something is off over here...</strike>"));
         listModel.firstElement().setSelected(true);
         list.setCellRenderer(new CheckboxListCellRenderer());
@@ -173,19 +173,34 @@ public class AnotherFrame extends JFrame {
         }
 }
 class PopUpList extends JPopupMenu {
-    JMenuItem anItem;
-    public  PopUpList(int index, DefaultListModel<CheckboxListItem> list, DefaultListModel<CheckboxListItem> stn) {
-        anItem = new JMenuItem("Remove");
-        anItem.addActionListener(new ActionListener() {
+    JMenuItem Remove, Rename;
+
+    public  PopUpList(int index, DefaultListModel<CheckboxListItem> list, DefaultListModel<CheckboxListItem> stn, JList<CheckboxListItem> jl) {
+        Remove = new JMenuItem("Remove");
+        Remove.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 list.remove(index);
                 stn.remove(index);
             }
         });
-        add(anItem);
+        add(Remove);
+
+        Rename  = new JMenuItem("Rename");
+        Rename.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String newName = JOptionPane.showInputDialog("Enter new name:");
+                if (newName != null && !newName.isEmpty()) {
+                    list.set(index, new CheckboxListItem(newName));
+                    stn.set(index, new CheckboxListItem(newName));
+                }
+            }
+        });
+        add(Rename);
     }
 }
+
 class PopUpClickListener extends MouseAdapter{
     private final DefaultListModel<CheckboxListItem> stdN;
     private JList<CheckboxListItem> list;
@@ -207,7 +222,7 @@ class PopUpClickListener extends MouseAdapter{
     private void PopUp(MouseEvent e){
         if (e.getButton()==MouseEvent.BUTTON3){
             int index = list.locationToIndex(e.getPoint());
-            PopUpList pul = new PopUpList(index, dlm, stdN);
+            PopUpList pul = new PopUpList(index, dlm, stdN, list);
             pul.show(e.getComponent(), e.getX(), e.getY());
         }
     }
